@@ -1,12 +1,25 @@
-name: A workflow for my Hello World file
 on: push
+name: AzureCLISample
+
+#  az ad sp create-for-rbac \
+#    --name "http://hello" --role contributor \
+#    --scopes /subscriptions/5465f0aa-77ae-4324-bcf4-1cd1aa584f44/resourceGroups/stcu-demo-rg \
+#    --sdk-auth
 
 jobs:
-  build:
-    name: Hello world action
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: ./action-a
+      - uses: actions/checkout@master
+
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          MY_NAME: "Mona"
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show

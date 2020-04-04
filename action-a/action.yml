@@ -1,17 +1,14 @@
-name: "Hello Actions"
-description: "Greet someone"
-author: "octocat@github.com"
-
+# Automate your GitHub workflows using Azure CLI scripts.
+name: "Azure CLI"
+description: "The action is used to execute Azure CLI commands"
 inputs:
-  MY_NAME:
-    description: "Who to greet"
+  inlineScript:
+    description: "Specify the script here"
     required: true
-    default: "World"
-
+  azcliversion:
+    description: "Azure CLI version to be used to execute the script"
+    required: false
+    default: "latest"
 runs:
-  using: "docker"
-  image: "Dockerfile"
-
-branding:
-  icon: "mic"
-  color: "purple"
+  using: "node12"
+  main: "lib/main.js"
