@@ -5,9 +5,11 @@ on:
             - 'functions/**'
 
 # https://github.com/Azure/actions-workflow-samples/blob/master/FunctionApp/windows-dotnet-functionapp-on-azure-rbac.yml
+# https://github.com/Azure/actions-workflow-samples/issues/15
 
 env:
-    AZURE_FUNCTIONAPP_NAME: Hello
+    AZURE_FUNCTIONAPP_NAME: stcu-hello
+    AZURE_FUNCTIONAPP_STORAGE: stcuhello
     AZURE_FUNCTIONAPP_PACKAGE_PATH: './functions'
     DOTNET_VERSION: '3.1.103'
 
@@ -22,6 +24,14 @@ jobs:
               uses: azure/login@v1
               with:
                   creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: 'Create Function App'
+              run: |
+                  az storage account create --name ${{ env.AZURE_FUNCTIONAPP_STORAGE }} \
+                      --resource-group stcu-demo-rg --location westus
+                  az functionapp create --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+                      --resource-group stcu-demo-rg --storage-account ${{ env.AZURE_FUNCTIONAPP_STORAGE }} \
+                      --consumption-plan-location westus --functions-version 3
 
             - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
               uses: actions/setup-dotnet@v1
