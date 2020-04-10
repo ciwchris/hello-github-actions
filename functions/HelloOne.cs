@@ -17,7 +17,7 @@ namespace Hello
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("Update again");
 
             string name = req.Query["name"];
 
