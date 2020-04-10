@@ -5,14 +5,33 @@ name: AzureCLISample
 #    --name "http://hello" --role contributor \
 #    --scopes /subscriptions/5465f0aa-77ae-4324-bcf4-1cd1aa584f44/resourceGroups/stcu-demo-rg \
 #    --sdk-auth
+#
+# New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
+
+
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@master
 
-            - shell: pwsh
-              run: echo ${env:PATH}
+            - name: Installing PS module
+              shell: pwsh
+              run: |
+                    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+                    Install-Module Az.ApiManagement
+
+            - name: Azure Login
+              uses: azure/login@v1
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Create APIM
+              shell: pwsh
+              run: |
+                  New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
+
+              #echo ${env:PATH}
     
       # - name: Azure Login
       #   uses: azure/login@v1
