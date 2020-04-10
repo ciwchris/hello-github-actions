@@ -1,24 +1,20 @@
 {
-  "name": "hello-github-actions",
-  "version": "1.0.0",
-  "description": "This course will walk you through writing your first action and using it with a workflow file.",
-  "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {
-    "swagger-editor-dist": "^3.8.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ciwchris/hello-github-actions.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ciwchris/hello-github-actions/issues"
-  },
-  "homepage": "https://github.com/ciwchris/hello-github-actions#readme"
+    "name": "hello-github-actions",
+    "version": "1.0.0",
+    "description": "This course will walk you through writing your first action and using it with a workflow file.",
+    "dependencies": {},
+    "devDependencies": {
+        "swagger-editor-dist": "^3.8.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ciwchris/hello-github-actions.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/ciwchris/hello-github-actions/issues"
+    },
+    "homepage": "https://github.com/ciwchris/hello-github-actions#readme"
 }

@@ -1,14 +1,11 @@
-on: push
 name: AzureCLISample
+on: [push]
 
 #  az ad sp create-for-rbac \
 #    --name "http://hello" --role contributor \
 #    --scopes /subscriptions/5465f0aa-77ae-4324-bcf4-1cd1aa584f44/resourceGroups/stcu-demo-rg \
 #    --sdk-auth
 #
-# New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
-
-
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
@@ -18,34 +15,18 @@ jobs:
             - name: Installing PS module
               shell: pwsh
               run: |
-                    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-                    Install-Module Az.ApiManagement
+                  Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+                  Install-Module Az.ApiManagement
 
             - name: Create APIM
               shell: pwsh
               run: |
-                    $tenantId = "c8e540af-20d5-4cb6-aa7a-d96eec0a1457"
-                    $passwd = ConvertTo-SecureString ${{ secrets.MYAPP_CLIENT_SECRET }} -AsPlainText -Force
-                    $pscredential = New-Object System.Management.Automation.PSCredential('49fa7898-3943-470e-b45c-ea670781208a', $passwd)
-                    Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $tenantId
+                  $tenantId = "c8e540af-20d5-4cb6-aa7a-d96eec0a1457"
+                  $passwd = ConvertTo-SecureString ${{ secrets.MYAPP_CLIENT_SECRET }} -AsPlainText -Force
+                  $pscredential = New-Object System.Management.Automation.PSCredential('49fa7898-3943-470e-b45c-ea670781208a', $passwd)
+                  Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $tenantId
 
             - name: Create APIM
               shell: pwsh
               run: |
                   New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
-
-              #echo ${env:PATH}
-    
-      # - name: Azure Login
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # - name: Azure CLI script
-      #   uses: azure/CLI@v1
-      #   with:
-      #     azcliversion: latest
-      #     inlineScript: |
-      #       az apim create \
-      #         --name stcu-apim-hello -g stcu-demo-rg -l westus \
-      #         --publisher-email christopher.lopes@gmail.com --publisher-name Personal
