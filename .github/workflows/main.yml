@@ -10,7 +10,8 @@ on: [push]
 env:
   AZURE_RESOURCE_GROUP: stcu-demo-rg
   APIM_NAME: stcu-hello-apim
-  APP_FUNCTION_URL: https://stcu-hello.azurewebsites.net/api/HelloOne
+  APP_FUNCTION_URL: https://stcu-hello.azurewebsites.net/
+  APIM_API_NAME: hello-one
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -31,13 +32,22 @@ jobs:
           $pscredential = New-Object System.Management.Automation.PSCredential('49fa7898-3943-470e-b45c-ea670781208a', $passwd)
           Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $tenantId
 
-      # - name: Create APIM
-      #   shell: pwsh
-      #   run: |
-      #       New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
-
       - name: Create APIM
         shell: pwsh
         run: |
-          $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} -ServiceName ${{ env.APIM_NAME }}
-          New-AzApiManagementApi -Context $ApiMgmtContext -Name "Hello api" -ServiceUrl ${{ env.APP_FUNCTION_URL }} -Protocols @("https") -Path "testapi"
+          New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
+
+      - name: Create API in APIM
+        shell: pwsh
+        run: |
+          $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} `
+            -ServiceName ${{ env.APIM_NAME }}
+          New-AzApiManagementApi -Context $ApiMgmtContext -Name ${{ env.APIM_API_NAME }} -ApiId ${{ env.APIM_API_NAME }}`
+            -ServiceUrl ${{ env.APP_FUNCTION_URL }} -Protocols @("https") -Path ${{ env.APIM_NAME }}
+          $NameQuery = New-Object -TypeName Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Models.PsApiManagementParameter
+          $NameQuery.Name = "name"
+          $NameQuery.Type = 'string'
+          $NameQuery.Required = True
+          New-AzApiManagementOperation -Context $ApiMgmtContext -ApiId ${{ env.APIM_API_NAME }} `
+            -OperationId "HelloOne001" -Name "HelloOne" -Method "GET" `
+            -UrlTemplate "/HelloOne?name={name}" -TemplateParameters @($NameQuery)
