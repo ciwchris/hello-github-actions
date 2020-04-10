@@ -5,21 +5,25 @@ name: AzureCLISample
 #    --name "http://hello" --role contributor \
 #    --scopes /subscriptions/5465f0aa-77ae-4324-bcf4-1cd1aa584f44/resourceGroups/stcu-demo-rg \
 #    --sdk-auth
-
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@master
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+            - shell: pwsh
+              run: echo ${env:PATH}
+    
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Azure CLI script
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
+      # - name: Azure CLI script
+      #   uses: azure/CLI@v1
+      #   with:
+      #     azcliversion: latest
+      #     inlineScript: |
+      #       az apim create \
+      #         --name stcu-apim-hello -g stcu-demo-rg -l westus \
+      #         --publisher-email christopher.lopes@gmail.com --publisher-name Personal
