@@ -6,27 +6,38 @@ on: [push]
 #    --scopes /subscriptions/5465f0aa-77ae-4324-bcf4-1cd1aa584f44/resourceGroups/stcu-demo-rg \
 #    --sdk-auth
 #
+
+env:
+  AZURE_RESOURCE_GROUP: stcu-demo-rg
+  APIM_NAME: stcu-hello-apim
+  APP_FUNCTION_URL: https://stcu-hello.azurewebsites.net/api/HelloOne
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@master
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
 
-            - name: Installing PS module
-              shell: pwsh
-              run: |
-                  Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-                  Install-Module Az.ApiManagement
+      - name: Installing PS module
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module Az.ApiManagement
 
-            - name: Create APIM
-              shell: pwsh
-              run: |
-                  $tenantId = "c8e540af-20d5-4cb6-aa7a-d96eec0a1457"
-                  $passwd = ConvertTo-SecureString ${{ secrets.MYAPP_CLIENT_SECRET }} -AsPlainText -Force
-                  $pscredential = New-Object System.Management.Automation.PSCredential('49fa7898-3943-470e-b45c-ea670781208a', $passwd)
-                  Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $tenantId
+      - name: Login
+        shell: pwsh
+        run: |
+          $tenantId = "c8e540af-20d5-4cb6-aa7a-d96eec0a1457"
+          $passwd = ConvertTo-SecureString ${{ secrets.MYAPP_CLIENT_SECRET }} -AsPlainText -Force
+          $pscredential = New-Object System.Management.Automation.PSCredential('49fa7898-3943-470e-b45c-ea670781208a', $passwd)
+          Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $tenantId
 
-            - name: Create APIM
-              shell: pwsh
-              run: |
-                  New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
+      # - name: Create APIM
+      #   shell: pwsh
+      #   run: |
+      #       New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
+
+      - name: Create APIM
+        shell: pwsh
+        run: |
+          $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} -ServiceName ${{ env.APIM_NAME }}
+          New-AzApiManagementApi -Context $ApiMgmtContext -Name "Hello api" -ServiceUrl ${{ env.APP_FUNCTION_URL }} -Protocols @("https") -Path "testapi"
