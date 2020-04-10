@@ -17,7 +17,7 @@ namespace Hello
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("Update again2");
+            log.LogInformation("Update again4");
 
             string name = req.Query["name"];
 

@@ -2,7 +2,7 @@ name: AzureFunctionDeploy
 on:
     push:
         paths:
-            - 'functions/**'
+            - "functions/**"
 
 # https://github.com/Azure/actions-workflow-samples/blob/master/FunctionApp/windows-dotnet-functionapp-on-azure-rbac.yml
 # https://github.com/Azure/actions-workflow-samples/issues/15
@@ -10,44 +10,48 @@ on:
 env:
     AZURE_FUNCTIONAPP_NAME: stcu-hello
     AZURE_FUNCTIONAPP_STORAGE: stcuhello
-    AZURE_FUNCTIONAPP_PACKAGE_PATH: './functions'
-    DOTNET_VERSION: '3.1.103'
+    AZURE_FUNCTIONAPP_RESOURCE_GROUP: stcu-demo-rg
+    AZURE_FUNCTIONAPP_PACKAGE_PATH: "./functions"
+    DOTNET_VERSION: "3.1.103"
 
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-            - name: 'Checkout GitHub Action'
+            - name: "Checkout GitHub Action"
               uses: actions/checkout@master
 
-            - name: 'Login via Azure CLI'
+            - name: "Login via Azure CLI"
               uses: azure/login@v1
               with:
                   creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-            - name: 'Create Function App'
+            - name: "Create Function App"
               run: |
                   az storage account create --name ${{ env.AZURE_FUNCTIONAPP_STORAGE }} \
                       --resource-group stcu-demo-rg --location westus
                   az functionapp create --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
                       --resource-group stcu-demo-rg --storage-account ${{ env.AZURE_FUNCTIONAPP_STORAGE }} \
                       --consumption-plan-location westus --functions-version 3
+                  az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+                       --resource-group ${{ env.AZURE_FUNCTIONAPP_RESOURCE_GROUP }} \
+                       --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
 
             - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
               uses: actions/setup-dotnet@v1
               with:
                   dotnet-version: ${{ env.DOTNET_VERSION }}
 
-            - name: 'Run dotnet'
+            - name: "Run dotnet"
               shell: pwsh
               run: |
                   pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
                   dotnet build --configuration Release --output ./output
                   popd
 
-            - name: 'Run Azure Functions Action'
+            - name: "Run Azure Functions Action"
               uses: Azure/functions-action@v1
               id: fa
               with:
                   app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-                  package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+                  package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
