@@ -21,10 +21,13 @@ jobs:
                     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
                     Install-Module Az.ApiManagement
 
-            - name: Azure Login
-              uses: azure/login@v1
-              with:
-                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+            - name: Create APIM
+              shell: pwsh
+              run: |
+                    $tenantId = "c8e540af-20d5-4cb6-aa7a-d96eec0a1457"
+                    $passwd = ConvertTo-SecureString ${{ secrets.MYAPP_CLIENT_SECRET }} -AsPlainText -Force
+                    $pscredential = New-Object System.Management.Automation.PSCredential('49fa7898-3943-470e-b45c-ea670781208a', $passwd)
+                    Connect-AzAccount -ServicePrincipal -Credential $pscredential -Tenant $tenantId
 
             - name: Create APIM
               shell: pwsh
