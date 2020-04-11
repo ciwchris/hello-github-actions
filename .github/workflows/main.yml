@@ -72,9 +72,18 @@ jobs:
           Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_MOCK_API_NAME }} `
             -OperationId get-helloone -PolicyFilePath "${{ env.POLICY_PATH }}/hello-mock.xml"
 
+      - name: Create Subscriptions directory
+        run: mkdir subscriptions
+
       - name: Create Subscription Key
         shell: pwsh
         run: |
           $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} `
             -ServiceName ${{ env.APIM_NAME }}
-          New-AzApiManagementSubscription -Context $ApiMgmtContext -Scope "/apis" -Name "GlobalApiScope"
+          $subscription = New-AzApiManagementSubscription -Context $ApiMgmtContext -Scope "/apis" -Name "GlobalApiScope"
+          $subscription | % { "PrimaryKey: " + $_.PrimaryKey + "`nSecondaryKey: " + $_.SecondaryKey } | Out-File -Path subscriptions/generated-subscription.txt
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: generated-subscription
+          path: subscriptions/
