@@ -12,6 +12,8 @@ env:
   APIM_NAME: stcu-hello-apim
   APP_FUNCTION_URL: https://stcu-hello.azurewebsites.net/
   APIM_API_NAME: hello-one
+  OPERATION_ID: HelloOne001
+  POLICY_PATH: "./policies"
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -42,12 +44,11 @@ jobs:
         run: |
           $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} `
             -ServiceName ${{ env.APIM_NAME }}
-          New-AzApiManagementApi -Context $ApiMgmtContext -Name ${{ env.APIM_API_NAME }} -ApiId ${{ env.APIM_API_NAME }}`
-            -ServiceUrl ${{ env.APP_FUNCTION_URL }} -Protocols @("https") -Path ${{ env.APIM_NAME }}
-          $NameQuery = New-Object -TypeName Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Models.PsApiManagementParameter
-          $NameQuery.Name = "name"
-          $NameQuery.Type = 'string'
-          $NameQuery.Required = True
+          New-AzApiManagementApi -Context $ApiMgmtContext -Name ${{ env.APIM_API_NAME }} -ApiId ${{ env.APIM_API_NAME }} `
+            -ServiceUrl ${{ env.APP_FUNCTION_URL }} -Protocols @("https") -Path ${{ env.APIM_API_NAME }}
+          $NameQuery = [PSCustomObject]@{ Name = "name"; Type = "string"; Required = $True }
           New-AzApiManagementOperation -Context $ApiMgmtContext -ApiId ${{ env.APIM_API_NAME }} `
-            -OperationId "HelloOne001" -Name "HelloOne" -Method "GET" `
+            -OperationId ${{ env.OPERATION_ID }} -Name ${{ env.APIM_API_NAME }} -Method "GET" `
             -UrlTemplate "/HelloOne?name={name}" -TemplateParameters @($NameQuery)
+          Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_API_NAME }} `
+            -OperationId ${{ env.OPERATION_ID }} -PolicyFilePath "${{ env.POLICY_PATH }}/hello-one.xml"
