@@ -4,7 +4,11 @@ info:
   version: "1.0"
 servers:
   - url: http://localhost:7071/api/
+    description: Localhost
   - url: https://stcu-hello.azurewebsites.net/api/
+    description: App Function
+  - url: https://stcu-hello-apim.azure-api.net/hello-one/
+    description: APIM
 paths:
   /HelloOne:
     get:
@@ -19,3 +23,5 @@ paths:
           content:
             text/plain:
               example: Hello Alice
+            application/json:
+              example: { message: Hello Alice }
