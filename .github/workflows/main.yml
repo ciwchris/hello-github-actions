@@ -14,7 +14,7 @@ env:
   APIM_API_NAME: hello-one
   APIM_MOCK_API_NAME: hello-mock
   OPERATION_ID: HelloOne001
-  BACKEND_ID: Backend001
+  BACKEND_ID: stcu-hello
   POLICY_PATH: "./policies"
 jobs:
   build-and-deploy:
