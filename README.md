@@ -21,7 +21,6 @@
 
 ## Todo
 
--   Don't keep adding CORS (and really all the other settings) to the Function App - i.e.
-    don't keep recreating it.
-- Create API using OpenAPI spec and mock result
-- Create a logic App and add it to API
+[] Don't keep adding CORS (and really all the other settings) to the Function App - i.e. don't keep recreating it.
+[x] Create API using OpenAPI spec and mock result
+[] Create a logic App and add it to API

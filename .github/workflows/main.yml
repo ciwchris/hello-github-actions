@@ -10,9 +10,11 @@ on: [push]
 env:
   AZURE_RESOURCE_GROUP: stcu-demo-rg
   APIM_NAME: stcu-hello-apim
-  APP_FUNCTION_URL: https://stcu-hello.azurewebsites.net/
+  APP_FUNCTION_URL: https://stcu-hello.azurewebsites.net/api
   APIM_API_NAME: hello-one
+  APIM_MOCK_API_NAME: hello-mock
   OPERATION_ID: HelloOne001
+  BACKEND_ID: Backend001
   POLICY_PATH: "./policies"
 jobs:
   build-and-deploy:
@@ -39,7 +41,7 @@ jobs:
         run: |
           New-AzApiManagement -ResourceGroupName stcu-demo-rg -Name stcu-hello-apim -Location 'West US' -Sku Consumption -Organization STCU -AdminEmail contoso@contoso.com -AssignIdentity
 
-      - name: Create API in APIM
+      - name: Create API with Function backend
         shell: pwsh
         run: |
           $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} `
@@ -50,5 +52,20 @@ jobs:
           New-AzApiManagementOperation -Context $ApiMgmtContext -ApiId ${{ env.APIM_API_NAME }} `
             -OperationId ${{ env.OPERATION_ID }} -Name ${{ env.APIM_API_NAME }} -Method "GET" `
             -UrlTemplate "/HelloOne?name={name}" -TemplateParameters @($NameQuery)
+          New-AzApiManagementBackend -Context  $ApiMgmtContext -BackendId ${{ env.BACKEND_ID }} `
+            -Protocol http -Url ${{ env.APP_FUNCTION_URL }}
+          Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_API_NAME }} `
+            -PolicyFilePath "${{ env.POLICY_PATH }}/stcu-hello-apim.xml"
           Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_API_NAME }} `
             -OperationId ${{ env.OPERATION_ID }} -PolicyFilePath "${{ env.POLICY_PATH }}/hello-one.xml"
+
+      - name: Create Mock API
+        shell: pwsh
+        run: |
+          $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} `
+            -ServiceName ${{ env.APIM_NAME }}
+          Import-AzApiManagementApi -Context $ApiMgmtContext -SpecificationFormat "OpenApi" `
+              -ApiId ${{ env.APIM_MOCK_API_NAME }} -Path ${{ env.APIM_MOCK_API_NAME }} `
+              -SpecificationPath "./hello.yml"
+          Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_MOCK_API_NAME }} `
+            -OperationId get-helloone -PolicyFilePath "${{ env.POLICY_PATH }}/hello-mock.xml"
