@@ -7,14 +7,18 @@ servers:
     description: Localhost
   - url: https://stcu-hello.azurewebsites.net/api/
     description: App Function
+  - url: https://stcu-hello-apim.azure-api.net/hello-mock/
+    description: APIM Mock
   - url: https://stcu-hello-apim.azure-api.net/hello-one/
     description: APIM
-  - url: https://apim-stcu.azure-api.net/stcu-hello
-    description: APIM Manual
 paths:
   /HelloOne:
     get:
       parameters:
+        - in: header
+          name: Ocp-Apim-Subscription-Key
+          schema:
+            type: string
         - in: query
           name: name
           schema:
@@ -23,7 +27,5 @@ paths:
         "200":
           description: OK
           content:
-            text/plain:
-              example: Hello Alice
             application/json:
               example: { message: Hello Alice }

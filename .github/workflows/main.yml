@@ -68,4 +68,13 @@ jobs:
               -ApiId ${{ env.APIM_MOCK_API_NAME }} -Path ${{ env.APIM_MOCK_API_NAME }} `
               -SpecificationPath "./hello.yml"
           Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_MOCK_API_NAME }} `
+            -PolicyFilePath "${{ env.POLICY_PATH }}/stcu-hello-apim.xml"
+          Set-AzApiManagementPolicy -Context $ApiMgmtContext -ApiId ${{ env.APIM_MOCK_API_NAME }} `
             -OperationId get-helloone -PolicyFilePath "${{ env.POLICY_PATH }}/hello-mock.xml"
+
+      - name: Create Subscription Key
+        shell: pwsh
+        run: |
+          $ApiMgmtContext = New-AzApiManagementContext -ResourceGroupName ${{ env.AZURE_RESOURCE_GROUP }} `
+            -ServiceName ${{ env.APIM_NAME }}
+          New-AzApiManagementSubscription -Context $ApiMgmtContext -Scope "/apis" -Name "GlobalApiScope"
