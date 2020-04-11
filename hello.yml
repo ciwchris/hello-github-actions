@@ -9,6 +9,8 @@ servers:
     description: App Function
   - url: https://stcu-hello-apim.azure-api.net/hello-one/
     description: APIM
+  - url: https://apim-stcu.azure-api.net/stcu-hello
+    description: APIM Manual
 paths:
   /HelloOne:
     get:
